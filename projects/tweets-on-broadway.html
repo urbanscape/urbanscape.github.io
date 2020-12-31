@@ -1,0 +1,215 @@
+<!DOCTYPE HTML>
+<!--
+	Full Motion by TEMPLATED
+	templated.co @templatedco
+	Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
+-->
+<html>
+    
+<head>
+    <title>jnhngkm</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    
+    <link rel="stylesheet" href="tweets-on-broadway/leaflet/leaflet.css" />
+    <script src="tweets-on-broadway/leaflet/leaflet.js"></script>
+</head>
+    
+	
+<body id="top">
+
+<!-- Title Page -->
+    <section id="banner" style="background-image: url('../images/project2-dark.jpg');">
+        <div class="inner">
+            <header>
+                <h1>Tweets on Broadway</h1>
+                <p style="text-align:left">Tweets on Broadway takes a journey through a section of Manhattan from 228th Street to Battery Park. Just as one would gather widely different perspectives walking through the different neighborhoods that Boradway cuts across, geolocated tweets along the street reveal a similar narrative. Each neighborhood is examined through their tweets -- while late night tweets in the financial district might complain of over-time work, the theater district may be tagging #bestmusical for the most recent showings. Looking specifically at the different languages of the tweets, the goal of this visualization was to see how different parts of Broadway are activated by different demographics at certain hours of the day.<br><br>Team Members: Jin Hong Kim, Soyeon Kim</p>
+            </header>
+            <a href="#main" class="more">Learn More</a>
+        </div>
+    </section>
+    
+<!-- Banner -->
+    <div id="navbar">
+        <a href="../index.html"><b>Home</b></a>
+        <a href="../about.html"><b>About</b></a>
+    </div>
+
+<!-- Main -->
+ 
+<!-- Leaflet style -->
+    <style>
+      #map { height: 800px; z-index: -1}
+
+      /*another-popop style*/
+      .another-popup .leaflet-popup-content-wrapper {
+        background: #FFFFFF;
+        color: #14171A;
+        font-family: 'Helvetica Neue';
+        font-size: 13px;
+        line-height: 24px;
+        border-radius: 0px;
+      }
+      .another-popup .leaflet-popup-content-wrapper a {
+        color: rgba(200, 200, 200, 0.1);
+      }
+      .another-popup .leaflet-popup-tip-container {
+        width: 50px;
+        height: 15px;
+      }
+      .another-popup .leaflet-popup-tip {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+      }
+    </style>
+            
+<body onLoad="javascript:init();">
+
+<div id="main" style="margin-top:-3em">   
+    <div class="inner">
+        <img src = '../images/tweets-on-broadway/Cooper_mappingManhattan2.jpg' class="center">
+        
+        <p style="color:black; font-family:Roboto; font-size:110%;"><br>This project initially started with inspiration from Becky Cooper's book, Mapping Manhattan. In the book, Cooper walked Manhattan from end to end along Broadway and asked police officers, homeless people, fashion models, and senior citizens to "map their Manhattan". Altogether, the book compiles 75 maps from New Yorkers from all parts of the town.</p>
+
+        <p style="color:black; font-family:Roboto; font-size:110%;">Could a similar story be extracted from looking through tweets geolocated along Broadway? Tweets on Broadway queried data from Twitter's API in search for qualitative data in neighborhoods that align Broadway.</p>
+        
+        <div class="row">
+            <div class="column2">
+                <p style="color:black; font-family:Roboto; font-size:110%; text-align:center">Tweet Object<br>
+                    <img src = '../images/tweets-on-broadway/twitterAPI1.jpg' width="90%">
+                </p>
+            </div>
+            <div class="column2">
+                <p style="color:black; font-family:Roboto; font-size:110%; text-align:center">.json<br>
+                    <img src = '../images/tweets-on-broadway/twitterAPI2.jpg' width="86.5%">
+                </p>
+            </div>
+        </div>
+        
+        <p style="color:black; font-family:Roboto; font-size:110%;"> As shown above, the API returns a list of data including each tweet's creation date, text, coordinates, and language. To query for tweets along Broadway, we extracted coordinates from each intersection node along Broadway and set the search radius to 520-feet (roughly the distance from street to street each way in a typicall Manhattan block). Then removing duplicates and other NA values, we ended up with a total of 1,794 tweets from the first week of december.</p>
+        
+        <img src = '../images/tweets-on-broadway/broadwaySearch.jpg' class="center">
+        
+        <p style="color:black; font-family:Roboto; font-size:110%;">The resulting tweets were mapped in Leaflet as shown below:</p>
+        
+        <!-- Leaflet Map -->
+        <div class="inner2">
+        <div id="map"></div>
+            <script language="javascript">
+               function init() {
+                  var map = L.map('map').setView([40.796172, -73.953012], 12);
+
+                  //CartoDB layer names: light_all / dark_all / light_nonames / dark_nonames
+                  var layer = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+                     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+                  });
+
+                  layer.addTo(map);
+                  map.attributionControl.setPrefix(''); // Don't show the 'Powered by Leaflet' text. Attribution overload
+
+                  var LineStyle = {
+                    "color": "#14171A",
+                    "weight": 2.5,
+                    "opacity": 0.65
+                  };
+
+                  var PointStyle = {
+                    "color": "#000000",
+                    "weight": 0.25,
+                    "opacity": 0.5,
+                    "fillOpacity": 10
+                  };
+
+                  //Broadway
+                  $.getJSON("tweets-on-broadway/broadway.geojson", function(data){
+                    //add GeoJson layer to the map once the file is loaded
+                    L.geoJSON(data, {
+                      style: LineStyle
+                    }).addTo(map);
+                  });
+                  
+                  //Tweets_with_Marker                   
+                  var popupOptions =
+                  {
+                    'maxWidth': '150',
+                    'className' : 'another-popup' // classname for another popup
+                  };
+
+                  $.getJSON('tweets-on-broadway/tweets.geojson', function (data) {
+                    var ratIcon = L.icon({
+                      iconUrl: "https://img.icons8.com/color/48/000000/twitter-circled.png",
+                      iconSize: [15,15]
+                    });
+                  L.geoJson(data, {
+                    onEachFeature: function (feature, layer) {
+                        layer.bindPopup(feature.properties.text, popupOptions);  
+                    },
+                    pointToLayer: function(feature,latlng){
+                        var marker = L.marker(latlng,{icon: ratIcon});
+                        marker.bindPopup(feature.properties.Location + '<br/>' + feature.properties.OPEN_DT);
+                        return marker;
+                  }
+                      }).addTo(map);
+                        });
+
+               }
+            </script>
+        </div>
+        
+        <p style="color:black; font-family:Roboto; font-size:110%;"><br>Upon closer examination of the languages that make up the queried data, it becomes evident that English makes up over 95% of the tweets along Broadway. The Seaborn barplot below shows most tweeted languages other than English.</p>
+        
+        <img src = '../images/tweets-on-broadway/languagePlot.jpg' class="center">
+        
+        <p style="color:black; font-family:Roboto; font-size:110%;"><br>Then word clouds were made to visualize some of the words most tweeted by the top three languages (other than English).</p>       
+        
+        <div class="row">
+            <div class="column3">
+                <p style="color:black; font-family:Roboto; font-size:110%; text-align:center">Spanish<br>
+                    <img src = '../images/tweets-on-broadway/wordcloud_es.jpg' width="90%">
+                </p>
+            </div>
+            <div class="column3">
+                <p style="color:black; font-family:Roboto; font-size:110%; text-align:center">French<br>
+                    <img src = '../images/tweets-on-broadway/wordcloud_fr.jpg' width="90%">
+                </p>
+            </div>
+            <div class="column3">
+                <p style="color:black; font-family:Roboto; font-size:110%; text-align:center">Japanese<br>
+                    <img src = '../images/tweets-on-broadway/wordcloud_ja.jpg' width="90%">
+                </p>
+            </div>
+        </div>
+    <p style="color:black; font-family:Roboto; font-size:110%;">The interactive map helps visualize which neighborhoods are more active with tweets. Looking closely at each tweet we can examine trends across different languages. Despite the limitations of standard Twitter API, from a small sample size of tweets, visualizing geolocated tweets can become an informative tool for anyone and a fun way to see what is happening in the city in real-time.</p>
+    </div>
+
+</div>
+    
+
+
+
+<!-- Footer -->
+    <footer id="footer">
+        <div class="inner">
+            <p>&copy; Copyright 2020, Jin Hong Kim </p>
+
+            <ul class="icons">
+                <li><a href="mailto:jinhong.kim@columbia.edu" class="icon fa-envelope"><span class="label">Email</span></a></li>
+            </ul>
+        </div>
+    </footer>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/jquery.poptrox.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+    
+            <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+	</body>
+</html>
