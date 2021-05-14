@@ -18,7 +18,7 @@
 </head>
     
 	
-<body id="top">
+<body id="top" onLoad="javascript:init();">
 
 <!-- Title Page -->
     <section id="banner" style="background-image: url('../images/project2-dark.jpg');">
@@ -41,7 +41,7 @@
  
 <!-- Leaflet style -->
     <style>
-      #map { height: 800px; z-index: -1}
+      #map { height: 600px; z-index: 0}
 
       /*another-popop style*/
       .another-popup .leaflet-popup-content-wrapper {
@@ -65,9 +65,7 @@
         box-shadow: none;
       }
     </style>
-            
-<body onLoad="javascript:init();">
-
+    
 <div id="main" style="margin-top:-3em">   
     <div class="inner">
         <img src = '../images/tweets-on-broadway/Cooper_mappingManhattan2.jpg' class="center">
@@ -100,14 +98,14 @@
         <div id="map"></div>
             <script language="javascript">
                function init() {
-                  var map = L.map('map').setView([40.796172, -73.953012], 12);
+                  var map = L.map('map', {zoomSnap:0.25}).setView([40.796172, -73.953012], 11.5);
 
                   //CartoDB layer names: light_all / dark_all / light_nonames / dark_nonames
                   var layer = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
                      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
-                  });
+                  }).addTo(map);
 
-                  layer.addTo(map);
+//                  layer.addTo(map);
                   map.attributionControl.setPrefix(''); // Don't show the 'Powered by Leaflet' text. Attribution overload
 
                   var LineStyle = {
